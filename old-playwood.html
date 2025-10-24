@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Old Play Wood – Stock Manager</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="wood-body" data-wood="Old Playwood">
+  <!-- Header -->
+  <header class="wood-header">
+    <h1><span class="highlight">Old Play Wood</span> Manager</h1>
+  </header>
+
+  <!-- Main Content -->
+  <main class="wood-container">
+    <!-- Current Stock -->
+    <section class="stock-card">
+      <h2>Current Stock</h2>
+      <p id="stockUnits">Units: 0</p>
+      <p id="stockAmount">Amount: ₹0</p>
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+      <button class="btn1" id="purchaseBtn">Purchase</button>
+      <button class="btn2" id="salesBtn">Sales</button>
+    </div>
+
+    <!-- Inline Popup -->
+    <section class="popup-container" id="popupContainer">
+      <form id="popupForm" class="popup-form">
+        <h3 id="popupTitle">Transaction</h3>
+
+        <label class="field">
+          <span>Size</span>
+          <select id="size" required>
+             <option value="½ Feet">½ Feet</option>
+            <option value="1 Feet">1 Feet</option>
+<option value="1½ Feet">1½ Feet</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Quantity</span>
+          <input type="number" id="qty" min="1" placeholder="e.g., 10" required />
+        </label>
+
+        <label class="field">
+          <span>Amount (₹)</span>
+          <input type="number" id="amount" min="1" placeholder="e.g., 2500" required />
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input type="date" id="txDate" required />
+        </label>
+
+        <div class="popup-actions">
+          <button type="submit" class="btn">Save</button>
+          <button type="button" class="btn cancel" id="closePopup">Cancel</button>
+<button type="button" class="btn back-btn" id="backToStock">Back</button>
+
+        </div>
+      </form>
+    </section>
+
+    <!-- History -->
+    <section class="history">
+      <h3>Transaction History</h3>
+<div class="date-filter">
+<div class="date-row">
+  <label>From:</label>
+  <input type="date" id="fromDate">
+  <label>To:</label>
+  <input type="date" id="toDate">
+</div>
+<div class="button-row">
+  <button class="filter-btn" id="filterBtn">Search</button>
+  <button class="reset-btn" id="resetFilterBtn">Reset</button>
+</div>
+<div class="button-row">
+    <button class="delete-btn" id="deleteSelectedBtn">Delete Selected</button>
+  </div>
+</div>
+
+      <ul id="historyList"></ul>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  </body>
+</html>

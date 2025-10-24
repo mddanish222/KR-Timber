@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wood Shop</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="home-body">
+  <!-- Header -->
+  <header class="home-header">
+    <h1>🪵 K.R Timbers 🪵</h1>
+    <div id="hamburger" class="hamburger">&#9776;</div>
+  </header>
+
+  <!-- Slide Menu -->
+  <nav id="sideMenu" class="side-menu">
+    <button id="closeMenu" class="close-btn">&times;</button>
+    <ul>
+      <li><a href="index.html">🏠 Home</a></li>
+<li><a href="expenditure.html">Expenditure</a></li>
+
+      <li><a href="poles.html">Poles</a></li>
+      <li><a href="silver.html">Silver Wood</a></li>
+      <li><a href="playwood.html">Play Wood</a></li>
+      <li><a href="old-playwood.html">Old Play Wood</a></li>
+
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="home-container">
+    <section class="cards">
+      <div class="card" onclick="window.location.href='poles.html'">
+        <h2>Poles</h2>
+      </div>
+      <div class="card" onclick="window.location.href='silver.html'">
+        <h2>Silver Wood</h2>
+      </div> 
+      <div class="card" onclick="window.location.href='playwood.html'">
+        <h2>Play Wood</h2>
+      </div>
+      <div class="card" onclick="window.location.href='old-playwood.html'">
+        <h2>Old-Play Wood</h2>
+      </div>
+    </section>
+
+    <!-- Bottom Summary -->
+    <section class="summary">
+      <h2>📊 Overall Calculation</h2>
+      <div class="summary-item">
+        <span>Total Purchase Amount:</span>
+        <strong id="totalPurchase">₹0</strong>
+      </div>
+      <div class="summary-item">
+        <span>Total Sales Amount:</span>
+        <strong id="totalSales">₹0</strong>
+      </div>
+      <div class="summary-item">
+        <span>Profit / Loss:</span>
+        <strong id="profitLoss">₹0</strong>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+  </body>
+</html>

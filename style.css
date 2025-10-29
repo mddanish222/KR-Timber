@@ -408,7 +408,7 @@ margin-left:-20px;
   /* Buttons row stays as-is, no CSS changes for buttons */
   .date-filter .button-row {
     flex-wrap: wrap; /* allows buttons to wrap if needed */
-    gap: 0.5rem;
+    gap: 0.1rem;
   }
 
 }
@@ -608,7 +608,7 @@ h2, h3 {
   .summary-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5px;
+    gap: 3px;
     justify-content: center;
     align-items: start;
   }
@@ -616,14 +616,14 @@ h2, h3 {
   .summary-box {
 min-width: 190px;
        background: #fff;
-    border-radius: 12px;
+    border-radius: 11px;
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     text-align: left;
   }
 
   .summary-box h3 {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #3e2723;
     margin-bottom: 5px;
     display: flex;
@@ -633,7 +633,7 @@ min-width: 190px;
 
   .summary-box input {
     width: 100%;
-    font-size: 13px;
+    font-size: 12px;
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -647,7 +647,7 @@ min-width: 190px;
   }
 
   .summary-row.yearly .summary-box {
-    max-width: 90%;
+    max-width: 65%;
     margin: 0 auto;
     text-align: center;
   }

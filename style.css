@@ -602,15 +602,16 @@ h2, h3 {
 /* ====== Mobile Responsive Layout ====== */
 @media (max-width: 600px) {
   .summary-section {
-    padding: 15px;
+    padding: 5px;
   }
 
   .summary-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3px;
+    gap: 1px;
     justify-content: center;
     align-items: start;
+margin-top:12px;
   }
 
   .summary-box {
@@ -633,7 +634,7 @@ min-width: 190px;
 
   .summary-box input {
     width: 100%;
-    font-size: 12px;
+    font-size: 11px;
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -647,7 +648,7 @@ min-width: 190px;
   }
 
   .summary-row.yearly .summary-box {
-    max-width: 65%;
+    max-width: 80%;
     margin: 0 auto;
     text-align: center;
   }

@@ -19,13 +19,11 @@ if (hamburger && sideMenu && closeMenu) {
   });
 }
 
-// =================home page calculation==========================================
+// ===========================================================
+// HOME PAGE CALCULATION
 (function () {
   const totalPurchaseEl = document.getElementById("totalPurchase");
-  const totalSalesEl = document.getElementById("totalSales");
-  const profitLossEl = document.getElementById("profitLoss");
-  const woodSelect = document.getElementById("woodSelect");
-  if (!totalPurchaseEl || !totalSalesEl || !profitLossEl || !woodSelect) return;
+  if (!totalPurchaseEl) return;
 
   const WOOD_KEYS = [
     { key: "woodapp_silver_v1", name: "Silver" },
@@ -40,15 +38,8 @@ if (hamburger && sideMenu && closeMenu) {
   }
 
   function calculateTotals(selected) {
-    if (!selected) return;
-
     let totalPurchase = 0, totalSales = 0;
-
-    const woods = selected === "overall"
-      ? WOOD_KEYS
-      : WOOD_KEYS.filter(w => w.name.toLowerCase() === selected.toLowerCase());
-
-    if (woods.length === 0) return;
+    const woods = selected === "overall" ? WOOD_KEYS : WOOD_KEYS.filter(w => w.name === selected);
 
     woods.forEach(wood => {
       const data = fetchWoodData(wood.key);
@@ -58,28 +49,27 @@ if (hamburger && sideMenu && closeMenu) {
       });
     });
 
-    totalPurchaseEl.textContent = "₹" + totalPurchase.toLocaleString("en-IN");
-    totalSalesEl.textContent = "₹" + totalSales.toLocaleString("en-IN");
-    profitLossEl.textContent = "₹" + (totalSales - totalPurchase).toLocaleString("en-IN");
-
-    // Add class for loss
-    const value = totalSales - totalPurchase;
-    if (value < 0) profitLossEl.classList.add("loss");
-    else profitLossEl.classList.remove("loss");
+    totalPurchaseEl.textContent = "₹" + Math.abs(totalPurchase).toLocaleString("en-IN");
+    document.getElementById("totalSales").textContent = "₹" + totalSales.toLocaleString("en-IN");
+    document.getElementById("profitLoss").textContent = "₹" + (totalSales - totalPurchase).toLocaleString("en-IN");
+    updateProfitLossColor();
   }
 
-  // Update totals when user changes selection
+  const woodSelect = document.getElementById("woodSelect");
   woodSelect.addEventListener("change", () => {
     calculateTotals(woodSelect.value);
   });
 
-  // Display Overall totals on page load AND when returning to page
-  window.addEventListener("pageshow", () => {
-    woodSelect.value = "overall";       // Always show Overall in dropdown
-    calculateTotals("overall");         // Display Overall totals
-  });
+  function updateProfitLossColor() {
+    const profitEl = document.getElementById("profitLoss");
+    const value = parseFloat(profitEl.textContent.replace(/₹|,/g, ''));
+    if (value < 0) profitEl.classList.add("loss");
+    else profitEl.classList.remove("loss");
+  }
 
+  calculateTotals("overall");
 })();
+
 // ===========================================================
 // GENERIC WOOD PAGE HANDLER
 function initWoodPage(WOOD_TYPE, LS_KEY) {
@@ -466,38 +456,3 @@ if (!document.getElementById("successPopup")) {
 document.getElementById("backToHome")?.addEventListener("click", function() {
   window.location.href = "index.html";
 });
-// ================= DYNAMIC CHECKBOX HANDLER (MULTI-SELECT ON CLICK) =================
-function enableMultiSelectOnClick(listSelector, checkboxSelector, itemSelector) {
-  const listEl = document.querySelector(listSelector);
-  if (!listEl) return;
-
-  // Hide all checkboxes initially
-  listEl.querySelectorAll(checkboxSelector).forEach(cb => cb.style.display = 'none');
-
-  // Show checkbox and toggle selection when clicking an entry
-  listEl.addEventListener('click', (e) => {
-    const li = e.target.closest(itemSelector);
-    if (!li) return;
-
-    const cb = li.querySelector(checkboxSelector);
-    if (cb) {
-      cb.style.display = 'inline-block';
-      cb.checked = !cb.checked; // toggle check
-    }
-  });
-
-  // Optional: hide all checkboxes when clicking outside the list
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest(listSelector)) {
-      listEl.querySelectorAll(checkboxSelector).forEach(cb => {
-        cb.style.display = 'none';
-      });
-    }
-  });
-}
-
-// ================= APPLY TO EXPENDITURE =================
-enableMultiSelectOnClick('#expHistory', '.selectEntry', 'li');
-
-// ================= APPLY TO WOOD HISTORY =================
-enableMultiSelectOnClick('#historyList', '.select-tx', '.tx-item');

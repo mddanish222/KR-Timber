@@ -20,13 +20,11 @@
     <button id="closeMenu" class="close-btn">&times;</button>
     <ul>
       <li><a href="index.html">🏠 Home</a></li>
-<li><a href="expenditure.html">Expenditure</a></li>
-
+      <li><a href="expenditure.html">Expenditure</a></li>
       <li><a href="poles.html">Poles</a></li>
       <li><a href="silver.html">Silver Wood</a></li>
       <li><a href="playwood.html">Play Wood</a></li>
       <li><a href="old-playwood.html">Old Play Wood</a></li>
-
     </ul>
   </nav>
 
@@ -49,7 +47,17 @@
 
     <!-- Bottom Summary -->
     <section class="summary">
-      <h2>📊 Overall Calculation</h2>
+      <h2>📊 Calculation</h2>
+
+      <label for="woodSelect">Select Wood: </label>
+      <select id="woodSelect">
+        <option value="overall" >Overall</option>
+        <option value="Poles">Poles</option>
+        <option value="Silver">Silver</option>
+        <option value="Plywood">Plywood</option>
+        <option value="Old Playwood">Old Playwood</option>
+      </select>
+
       <div class="summary-item">
         <span>Total Purchase Amount:</span>
         <strong id="totalPurchase">₹0</strong>
@@ -66,5 +74,5 @@
   </main>
 
   <script src="script.js"></script>
-  </body>
+</body>
 </html>

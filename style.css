@@ -686,3 +686,38 @@ min-width: 190px;
   justify-content: center;
   gap: 10px;
 }
+/*drop down in index*/
+#woodSelect {
+  width: 100%;
+  max-width: 200px;
+  padding: 2px 6px;
+  margin: 10px 0 20px 0;
+  border-radius: 8px;
+  border: 1px solid #c7b08a;
+  background: linear-gradient(145deg, #f3e0c7, #e1c699);
+  color: #3e2c1c;
+  font-size: 1rem;
+  font-family: 'Bree Serif', serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+#woodSelect:hover {
+  background: linear-gradient(145deg, #e8d1a5, #d6b27d);
+}
+
+/* Focus effect */
+#woodSelect:focus {
+  outline: none;
+  border-color: #d1a254;
+  box-shadow: 0 0 5px rgba(209, 162, 84, 0.7);
+}
+
+/* Dropdown options (cannot support gradient reliably) */
+#woodSelect option {
+  background-color: #f3e0c7; /* closest match */
+  color: #3e2c1c;
+  font-family: 'Bree Serif', serif;
+}
+

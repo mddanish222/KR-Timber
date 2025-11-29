@@ -484,6 +484,9 @@ function enableMultiSelectOnClick(listSelector, checkboxSelector, itemSelector) 
       });
     }
   });
+    historyListEl.querySelectorAll('.select-tx').forEach(cb => cb.style.display = 'none');
+
+
 }
 
 // ================= APPLY TO EXPENDITURE =================
@@ -491,5 +494,6 @@ enableMultiSelectOnClick('#expHistory', '.selectEntry', 'li');
 
 // ================= APPLY TO WOOD HISTORY =================
 enableMultiSelectOnClick('#historyList', '.select-tx', '.tx-item');
+
 
 

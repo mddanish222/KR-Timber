@@ -12,7 +12,6 @@ if (hamburger && sideMenu && closeMenu) {
     sideMenu.classList.remove("open");
   });
 
-  // Optional: close menu when clicking outside
   window.addEventListener("click", (e) => {
     if (e.target === sideMenu) {
       sideMenu.classList.remove("open");
@@ -20,17 +19,19 @@ if (hamburger && sideMenu && closeMenu) {
   });
 }
 
-// ===========================================================
-
-/* ========== HOME PAGE SUMMARY ========== */
+// =================home page calculation==========================================
 (function () {
-  if (!document.getElementById("totalPurchase")) return;
+  const totalPurchaseEl = document.getElementById("totalPurchase");
+  const totalSalesEl = document.getElementById("totalSales");
+  const profitLossEl = document.getElementById("profitLoss");
+  const woodSelect = document.getElementById("woodSelect");
+  if (!totalPurchaseEl || !totalSalesEl || !profitLossEl || !woodSelect) return;
 
   const WOOD_KEYS = [
-    { key: "woodapp_silver_v1" },
-    { key: "woodapp_poles_v1" },
-    { key: "woodapp_plywood_v1" },
-    { key: "woodapp_oldplaywood_v1" }
+    { key: "woodapp_silver_v1", name: "Silver" },
+    { key: "woodapp_poles_v1", name: "Poles" },
+    { key: "woodapp_plywood_v1", name: "Plywood" },
+    { key: "woodapp_oldplaywood_v1", name: "Old Playwood" }
   ];
 
   function fetchWoodData(key) {
@@ -38,32 +39,51 @@ if (hamburger && sideMenu && closeMenu) {
     return raw ? JSON.parse(raw) : { units: 0, amount: 0, history: [] };
   }
 
-  function loadSummary() {
-    let totalPurchase = 0, totalSales = 0, totalStock = 0;
+  function calculateTotals(selected) {
+    if (!selected) return;
 
-    WOOD_KEYS.forEach(wood => {
+    let totalPurchase = 0, totalSales = 0;
+
+    const woods = selected === "overall"
+      ? WOOD_KEYS
+      : WOOD_KEYS.filter(w => w.name.toLowerCase() === selected.toLowerCase());
+
+    if (woods.length === 0) return;
+
+    woods.forEach(wood => {
       const data = fetchWoodData(wood.key);
       (data.history || []).forEach(item => {
         if (item.type === "Purchase") totalPurchase += item.amount;
         if (item.type === "Sales") totalSales += item.amount;
       });
-      totalStock += data.units || 0;
     });
 
-    document.getElementById("totalPurchase").textContent = "₹" + totalPurchase.toLocaleString("en-IN");
-    document.getElementById("totalSales").textContent = "₹" + totalSales.toLocaleString("en-IN");
-    document.getElementById("profitLoss").textContent = "₹" + (totalSales - totalPurchase).toLocaleString("en-IN");
-    document.getElementById("totalStock").textContent = totalStock + " units";
+    totalPurchaseEl.textContent = "₹" + totalPurchase.toLocaleString("en-IN");
+    totalSalesEl.textContent = "₹" + totalSales.toLocaleString("en-IN");
+    profitLossEl.textContent = "₹" + (totalSales - totalPurchase).toLocaleString("en-IN");
+
+    // Add class for loss
+    const value = totalSales - totalPurchase;
+    if (value < 0) profitLossEl.classList.add("loss");
+    else profitLossEl.classList.remove("loss");
   }
 
-  loadSummary();
-})();
+  // Update totals when user changes selection
+  woodSelect.addEventListener("change", () => {
+    calculateTotals(woodSelect.value);
+  });
 
-/* ========== GENERIC WOOD PAGE HANDLER ========== */
+  // Display Overall totals on page load AND when returning to page
+  window.addEventListener("pageshow", () => {
+    woodSelect.value = "overall";       // Always show Overall in dropdown
+    calculateTotals("overall");         // Display Overall totals
+  });
+
+})();
+// ===========================================================
+// GENERIC WOOD PAGE HANDLER
 function initWoodPage(WOOD_TYPE, LS_KEY) {
   const purchaseBtn = document.getElementById("purchaseBtn");
-  if (!purchaseBtn) return;
-
   const salesBtn = document.getElementById("salesBtn");
   const popupContainer = document.getElementById("popupContainer");
   const popupTitle = document.getElementById("popupTitle");
@@ -72,46 +92,79 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
   const sizeEl = document.getElementById("size");
   const qtyEl = document.getElementById("qty");
   const amountEl = document.getElementById("amount");
-  const stockUnitsEl = document.getElementById("stockUnits");
-  const stockAmountEl = document.getElementById("stockAmount");
   const historyListEl = document.getElementById("historyList");
   const backBtn = document.getElementById("backToStock");
   const qtyLabelSpan = document.getElementById("qtyLabel");
+  const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
 
   const isSilver = WOOD_TYPE.toLowerCase() === "silver";
-
-  let successPopup = document.createElement("div");
+if (!document.getElementById("successPopup")) {
+  const successPopup = document.createElement("div");
   successPopup.id = "successPopup";
   successPopup.textContent = "✅ Data updated successfully!";
+  successPopup.style.display = "none";
   document.body.appendChild(successPopup);
+}
+
 
   let raw = localStorage.getItem(LS_KEY);
   let state = raw ? JSON.parse(raw) : { woodType: WOOD_TYPE, units: 0, amount: 0, history: [] };
 
-  function inr(n) {
-    return "₹" + (Number(n) || 0).toLocaleString("en-IN");
-  }
+  function inr(n) { return "₹" + (Number(n) || 0).toLocaleString("en-IN"); }
 
   function formatDate(dateStr) {
     const d = new Date(dateStr);
     if (isNaN(d)) return "";
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   }
 
+  // ================== CURRENT STOCK ONLY UNITS / CFT ==================
+  function updateCurrentStock() {
+    let totalPurchase = 0;
+    let totalSales = 0;
+
+    state.history.forEach(entry => {
+      if (entry.type === "Purchase") totalPurchase += entry.qty;
+      if (entry.type === "Sales") totalSales += entry.qty;
+    });
+
+    const labelPurchase = isSilver ? "Purchase CFT: " : "Purchase Units: ";
+    const labelSales = isSilver ? "Sale CFT: " : "Sale Units: ";
+    const labelRemaining = isSilver ? "Remaining CFT: " : "Remaining Units: ";
+
+    document.getElementById("purchaseUnits").textContent = labelPurchase + totalPurchase;
+    document.getElementById("saleUnits").textContent = labelSales + totalSales;
+    document.getElementById("remainingUnits").textContent = labelRemaining + (totalPurchase - totalSales);
+  }
+
+  // ================== RENDER TRANSACTION HISTORY ==================
   function render(data = state.history) {
+    if (!historyListEl) return;
+
+    updateCurrentStock(); // update current stock
+
     const qtyLabel = isSilver ? "CFT" : "Quantity";
     const unitLabel = isSilver ? "CFT" : "Units";
 
-    stockUnitsEl.textContent = `${unitLabel}: ${state.units}`;
-    stockAmountEl.textContent = `Amount: ${inr(state.amount)}`;
-
-    if (qtyLabelSpan) qtyLabelSpan.textContent = qtyLabel;
-
     historyListEl.innerHTML = "";
-    data.forEach((item, index) => {
+
+    let runningUnits = 0;
+    let runningAmount = 0;
+
+    const sortedData = [...data].reverse();
+
+    const cumulative = sortedData.map(item => {
+      if (item.type === "Purchase") {
+        runningUnits += item.qty;
+        runningAmount -= item.amount;
+      } else if (item.type === "Sales") {
+        runningUnits -= item.qty;
+        runningAmount += item.amount;
+      }
+      return { ...item, totalUnits: runningUnits, totalAmount: runningAmount };
+    });
+
+    cumulative.reverse().forEach((item, index) => {
       const li = document.createElement("li");
       li.className = `tx-item ${item.type.toLowerCase()}`;
       li.innerHTML = `
@@ -127,36 +180,47 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
       `;
       historyListEl.appendChild(li);
     });
+
+    if (qtyLabelSpan) qtyLabelSpan.textContent = qtyLabel;
   }
 
+  // ================== SAVE TRANSACTION ==================
   function save(tx) {
     if (tx.type === "Purchase") {
       state.units += tx.qty;
-      state.amount += tx.amount;
+      state.amount -= tx.amount;
     } else {
       if (tx.qty > state.units) {
         alert("Cannot sell more than current stock!");
         return false;
       }
       state.units -= tx.qty;
-      state.amount -= tx.amount;
+      state.amount += tx.amount;
     }
+
     state.history.unshift({ ...tx, totalUnits: state.units, totalAmount: state.amount });
     localStorage.setItem(LS_KEY, JSON.stringify(state));
 
-    successPopup.style.display = "block";
-    setTimeout(() => { successPopup.style.display = "none"; }, 2000);
+    const successPopup = document.getElementById("successPopup");
+    if (successPopup) {
+      successPopup.style.display = "block";
+      setTimeout(() => { successPopup.style.display = "none"; }, 2000);
+    }
 
     return true;
   }
 
+  // ================== POPUP HANDLER ==================
   function openPopup(type) {
+    if (!popupContainer) return;
+    if (!popupTitle) return;
+
     popupTitle.textContent = type === "Purchase" ? "Purchase Wood" : "Sell Wood";
     popupContainer.dataset.mode = type;
     popupContainer.style.display = "block";
 
-    qtyEl.value = "";
-    amountEl.value = "";
+    if (qtyEl) qtyEl.value = "";
+    if (amountEl) amountEl.value = "";
 
     const dateInput = document.getElementById("txDate");
     if (dateInput) {
@@ -167,105 +231,99 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
       dateInput.value = `${year}-${month}-${day}`;
     }
 
-    setTimeout(() => qtyEl.focus(), 100);
+    setTimeout(() => { if (qtyEl) qtyEl.focus(); }, 100);
   }
 
-  function cancelOnly() {
-    qtyEl.value = "";
-    amountEl.value = "";
-  }
-
-  function closePopupAndBack() {
-    qtyEl.value = "";
-    amountEl.value = "";
-    popupContainer.style.display = "none";
+  if (purchaseBtn) purchaseBtn.addEventListener("click", () => openPopup("Purchase"));
+  if (salesBtn) salesBtn.addEventListener("click", () => openPopup("Sales"));
+  if (closePopupBtn) closePopupBtn.addEventListener("click", () => {
+    if (qtyEl) qtyEl.value = "";
+    if (amountEl) amountEl.value = "";
+  });
+  if (backBtn) backBtn.addEventListener("click", () => {
+    if (popupContainer) popupContainer.style.display = "none";
     document.getElementById("stockSection")?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  purchaseBtn.addEventListener("click", () => openPopup("Purchase"));
-  salesBtn.addEventListener("click", () => openPopup("Sales"));
-  closePopupBtn.addEventListener("click", cancelOnly);
-  if (backBtn) backBtn.addEventListener("click", closePopupAndBack);
-
-  popupForm.addEventListener("submit", e => {
-    e.preventDefault();
-
-    const qtyVal = parseFloat(qtyEl.value);
-    const amountVal = parseFloat(amountEl.value);
-
-    if (isNaN(qtyVal) || qtyVal <= 0 || isNaN(amountVal) || amountVal <= 0) {
-      alert("Enter valid quantity and amount");
-      return;
-    }
-
-    const dateInput = document.getElementById("txDate");
-
-    const tx = {
-      type: popupContainer.dataset.mode,
-      size: sizeEl.value,
-      qty: qtyVal,
-      amount: amountVal,
-      date: dateInput ? dateInput.value : "",
-      ts: Date.now()
-    };
-
-    if (save(tx)) {
-      render();
-      qtyEl.value = "";
-      amountEl.value = "";
-    }
   });
 
-  const fromDateEl = document.getElementById("fromDate");
-  const toDateEl = document.getElementById("toDate");
-  const filterBtn = document.getElementById("filterBtn");
-  const resetFilterBtn = document.getElementById("resetFilterBtn");
+  if (popupForm) {
+    popupForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const qtyVal = parseFloat(qtyEl?.value);
+      const amountVal = parseFloat(amountEl?.value);
+      if (isNaN(qtyVal) || qtyVal <= 0 || isNaN(amountVal) || amountVal <= 0) {
+        alert("Enter valid quantity and amount");
+        return;
+      }
 
-  function renderFilteredRange(from, to) {
-    const filtered = state.history.filter(item => {
-      if (!from && !to) return true;
-      const txDate = new Date(item.date);
-      const fromD = from ? new Date(from) : null;
-      const toD = to ? new Date(to) : null;
-      if (fromD && toD) return txDate >= fromD && txDate <= toD;
-      if (fromD) return txDate >= fromD;
-      if (toD) return txDate <= toD;
-      return true;
+      const dateInput = document.getElementById("txDate");
+      const tx = {
+        type: popupContainer.dataset.mode,
+        size: sizeEl?.value,
+        qty: qtyVal,
+        amount: amountVal,
+        date: dateInput ? dateInput.value : "",
+        ts: Date.now()
+      };
+
+      if (save(tx)) {
+        render();
+      }
     });
-    render(filtered);
   }
 
-  filterBtn?.addEventListener("click", () => {
-    renderFilteredRange(fromDateEl.value, toDateEl.value);
-  });
+  // ================== DELETE SELECTED TRANSACTIONS ==================
+   // ================== DELETE SELECTED TRANSACTIONS ==================
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener("click", () => {
+      const checked = [...document.querySelectorAll(".select-tx:checked")];
+      if (checked.length === 0) return alert("No entries selected.");
+      if (!confirm("Delete selected transactions?")) return;
 
-  resetFilterBtn?.addEventListener("click", () => {
-    fromDateEl.value = "";
-    toDateEl.value = "";
-    render();
-  });
+      const indexes = checked.map(chk => parseInt(chk.dataset.index));
+      state.history = state.history.filter((_, i) => !indexes.includes(i));
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      render(); // update current stock & history
+    });
+  }
 
-  const deleteBtn = document.getElementById("deleteSelectedBtn");
+  // ================== DATE FILTER (WORKS FOR ALL WOOD PAGES) ==================
+  (function applyWoodFilter() {
+    const fromDateEl = document.getElementById("fromDate");
+    const toDateEl = document.getElementById("toDate");
+    const filterBtnEl = document.getElementById("filterBtn");
+    const resetFilterBtnEl = document.getElementById("resetFilterBtn");
 
-  deleteBtn?.addEventListener("click", () => {
-    const selected = Array.from(document.querySelectorAll(".select-tx:checked"));
-    if (selected.length === 0) {
-      alert("No entries selected!");
-      return;
-    }
+    if (!filterBtnEl || !resetFilterBtnEl) return;
 
-    if (!confirm(`Delete ${selected.length} selected transaction(s)?`)) return;
+    filterBtnEl.addEventListener("click", () => {
+      const from = fromDateEl.value ? new Date(fromDateEl.value) : null;
+      const to = toDateEl.value ? new Date(toDateEl.value) : null;
 
-    const indexesToDelete = selected.map(cb => parseInt(cb.dataset.index));
-    state.history = state.history.filter((_, idx) => !indexesToDelete.includes(idx));
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
-    render();
-  });
+      const filtered = state.history.filter(entry => {
+        if (!entry.date) return false;
+        const d = new Date(entry.date);
+        d.setHours(0, 0, 0, 0);
+
+        const afterFrom = from ? d >= new Date(from.setHours(0,0,0,0)) : true;
+        const beforeTo = to ? d <= new Date(to.setHours(0,0,0,0)) : true;
+
+        return afterFrom && beforeTo;
+      });
+
+      render(filtered);
+    });
+
+    resetFilterBtnEl.addEventListener("click", () => {
+      fromDateEl.value = "";
+      toDateEl.value = "";
+      render();   // show all again
+    });
+  })();
 
   render();
 }
-
-/* ========== AUTO-DETECT PAGE WOOD TYPE ========== */
+// ===========================================================
+// AUTO-DETECT WOOD PAGE
 (function () {
   const body = document.body;
   const woodType = body.dataset.wood?.trim();
@@ -281,8 +339,8 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
   const key = woodMap[woodType];
   if (key) initWoodPage(woodType, key);
 })();
-
-/* ========== EXPENDITURE SCRIPT ========== */
+// ===========================================================
+// EXPENDITURE SCRIPT (UNCHANGED)
 (function () {
   const expForm = document.getElementById('expForm');
   if (!expForm) return;
@@ -309,7 +367,6 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
   const LS_KEY = 'woodapp_expenditure_v1';
   let data = JSON.parse(localStorage.getItem(LS_KEY)) || [];
 
-  // ✅ Success Popup
   const successPopup = document.createElement("div");
   successPopup.id = "successPopup";
   successPopup.textContent = "✅ Data updated successfully!";
@@ -344,11 +401,8 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
     data.push({date:d, amount:a, desc:t});
     saveData(); render(); calcTotals(); expForm.reset();
 
-    // ✅ Show success message
     successPopup.style.display = "block";
-    setTimeout(() => {
-      successPopup.style.display = "none";
-    }, 2000);
+    setTimeout(() => { successPopup.style.display = "none"; }, 2000);
   });
 
   resetExp.addEventListener('click',()=>expForm.reset());
@@ -371,6 +425,7 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
     });
     render(filtered);
   });
+
   resetFilterBtn.addEventListener('click',()=>{fromDate.value=toDate.value=""; render();});
 
   function calcTotals(){
@@ -391,12 +446,14 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
     const val=dailyDate.value;
     dailyEl.textContent=inr(data.filter(x=>x.date===val).reduce((s,x)=>s+x.amount,0));
   });
+
   monthSelect.addEventListener('change',()=>{
     const [y,m]=monthSelect.value.split('-').map(Number);
     monthlyEl.textContent=inr(data.filter(x=>{
       const d=new Date(x.date); return d.getMonth()+1===m&&d.getFullYear()===y;
     }).reduce((s,x)=>s+x.amount,0));
   });
+
   yearSelect.addEventListener('input',()=>{
     const y=parseInt(yearSelect.value);
     yearlyEl.textContent=inr(data.filter(x=>new Date(x.date).getFullYear()===y).reduce((s,x)=>s+x.amount,0));
@@ -406,6 +463,41 @@ function initWoodPage(WOOD_TYPE, LS_KEY) {
 })();
 
 /*back button in expenditure*/
-document.getElementById("backToHome").addEventListener("click", function() {
-  window.location.href = "index.html"; // ✅ updated for GitHub Pages
+document.getElementById("backToHome")?.addEventListener("click", function() {
+  window.location.href = "index.html";
 });
+// ================= DYNAMIC CHECKBOX HANDLER (MULTI-SELECT ON CLICK) =================
+function enableMultiSelectOnClick(listSelector, checkboxSelector, itemSelector) {
+  const listEl = document.querySelector(listSelector);
+  if (!listEl) return;
+
+  // Hide all checkboxes initially
+  listEl.querySelectorAll(checkboxSelector).forEach(cb => cb.style.display = 'none');
+
+  // Show checkbox and toggle selection when clicking an entry
+  listEl.addEventListener('click', (e) => {
+    const li = e.target.closest(itemSelector);
+    if (!li) return;
+
+    const cb = li.querySelector(checkboxSelector);
+    if (cb) {
+      cb.style.display = 'inline-block';
+      cb.checked = !cb.checked; // toggle check
+    }
+  });
+
+  // Optional: hide all checkboxes when clicking outside the list
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest(listSelector)) {
+      listEl.querySelectorAll(checkboxSelector).forEach(cb => {
+        cb.style.display = 'none';
+      });
+    }
+  });
+}
+
+// ================= APPLY TO EXPENDITURE =================
+enableMultiSelectOnClick('#expHistory', '.selectEntry', 'li');
+
+// ================= APPLY TO WOOD HISTORY =================
+enableMultiSelectOnClick('#historyList', '.select-tx', '.tx-item');

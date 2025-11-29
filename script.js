@@ -456,3 +456,40 @@ if (!document.getElementById("successPopup")) {
 document.getElementById("backToHome")?.addEventListener("click", function() {
   window.location.href = "index.html";
 });
+// ================= DYNAMIC CHECKBOX HANDLER (MULTI-SELECT ON CLICK) =================
+function enableMultiSelectOnClick(listSelector, checkboxSelector, itemSelector) {
+  const listEl = document.querySelector(listSelector);
+  if (!listEl) return;
+
+  // Hide all checkboxes initially
+  listEl.querySelectorAll(checkboxSelector).forEach(cb => cb.style.display = 'none');
+
+  // Show checkbox and toggle selection when clicking an entry
+  listEl.addEventListener('click', (e) => {
+    const li = e.target.closest(itemSelector);
+    if (!li) return;
+
+    const cb = li.querySelector(checkboxSelector);
+    if (cb) {
+      cb.style.display = 'inline-block';
+      cb.checked = !cb.checked; // toggle check
+    }
+  });
+
+  // Optional: hide all checkboxes when clicking outside the list
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest(listSelector)) {
+      listEl.querySelectorAll(checkboxSelector).forEach(cb => {
+        cb.style.display = 'none';
+      });
+    }
+  });
+}
+
+// ================= APPLY TO EXPENDITURE =================
+enableMultiSelectOnClick('#expHistory', '.selectEntry', 'li');
+
+// ================= APPLY TO WOOD HISTORY =================
+enableMultiSelectOnClick('#historyList', '.select-tx', '.tx-item');
+
+

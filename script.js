@@ -110,22 +110,27 @@ if (!document.getElementById("successPopup")) {
 
   // ================== CURRENT STOCK ONLY UNITS / CFT ==================
   function updateCurrentStock() {
-    let totalPurchase = 0;
-    let totalSales = 0;
+  const filter = document.getElementById("sizeFilter")?.value || "all";
 
-    state.history.forEach(entry => {
-      if (entry.type === "Purchase") totalPurchase += entry.qty;
-      if (entry.type === "Sales") totalSales += entry.qty;
-    });
+  let totalPurchase = 0;
+  let totalSales = 0;
 
-    const labelPurchase = isSilver ? "Purchase CFT: " : "Purchase Units: ";
-    const labelSales = isSilver ? "Sale CFT: " : "Sale Units: ";
-    const labelRemaining = isSilver ? "Remaining CFT: " : "Remaining Units: ";
+  state.history.forEach(entry => {
+    if (filter !== "all" && entry.size !== filter) return;
 
-    document.getElementById("purchaseUnits").textContent = labelPurchase + totalPurchase;
-    document.getElementById("saleUnits").textContent = labelSales + totalSales;
-    document.getElementById("remainingUnits").textContent = labelRemaining + (totalPurchase - totalSales);
-  }
+    if (entry.type === "Purchase") totalPurchase += entry.qty;
+    if (entry.type === "Sales") totalSales += entry.qty;
+  });
+
+  const labelPurchase = isSilver ? "Purchase CFT: " : "Purchase Units: ";
+  const labelSales = isSilver ? "Sale CFT: " : "Sale Units: ";
+  const labelRemaining = isSilver ? "Remaining CFT: " : "Remaining Units: ";
+
+  document.getElementById("purchaseUnits").textContent = labelPurchase + totalPurchase;
+  document.getElementById("saleUnits").textContent = labelSales + totalSales;
+  document.getElementById("remainingUnits").textContent = labelRemaining + (totalPurchase - totalSales);
+}
+document.getElementById("sizeFilter")?.addEventListener("change", updateCurrentStock);
 
   // ================== RENDER TRANSACTION HISTORY ==================
   function render(data = state.history) {
@@ -464,28 +469,35 @@ function enableMultiSelectOnClick(listSelector, checkboxSelector, itemSelector) 
   // Hide all checkboxes initially
   listEl.querySelectorAll(checkboxSelector).forEach(cb => cb.style.display = 'none');
 
-  // Show checkbox and toggle selection when clicking an entry
+  // Handle click inside list
   listEl.addEventListener('click', (e) => {
     const li = e.target.closest(itemSelector);
     if (!li) return;
 
     const cb = li.querySelector(checkboxSelector);
     if (cb) {
-      cb.style.display = 'inline-block';
-      cb.checked = !cb.checked; // toggle check
+      // If checkbox was already visible & unchecked → hide it
+      if (cb.style.display === 'inline-block' && cb.checked === false) {
+        cb.style.display = 'none';
+      } else {
+        // Show checkbox and toggle its state
+        cb.style.display = 'inline-block';
+        cb.checked = !cb.checked;
+      }
+
+      e.stopPropagation(); // prevent outside click hide
     }
   });
 
-  // Optional: hide all checkboxes when clicking outside the list
+  // Hide all checkboxes when clicking outside the list
   document.addEventListener('click', (e) => {
     if (!e.target.closest(listSelector)) {
       listEl.querySelectorAll(checkboxSelector).forEach(cb => {
-        cb.style.display = 'none';
+        if (!cb.checked) cb.style.display = 'none'; // hide only unchecked ones
       });
     }
   });
-    historyListEl.querySelectorAll('.select-tx').forEach(cb => cb.style.display = 'none');
-
+  historyListEl.querySelectorAll('.select-tx').forEach(cb => cb.style.display = 'none');
 
 }
 
@@ -494,6 +506,3 @@ enableMultiSelectOnClick('#expHistory', '.selectEntry', 'li');
 
 // ================= APPLY TO WOOD HISTORY =================
 enableMultiSelectOnClick('#historyList', '.select-tx', '.tx-item');
-
-
-

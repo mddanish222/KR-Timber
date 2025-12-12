@@ -15,12 +15,28 @@
   <!-- Main Content -->
   <main class="wood-container">
     <!-- Current Stock -->
-    <section class="stock-card" id="stockSection">
+   
+ <section class="stock-card">
   <h2>Current Stock</h2>
-  <p id="purchaseUnits">Purchase CFT: 0</p>
-  <p id="saleUnits">Sale CFT: 0</p>
-  <p id="remainingUnits">Remaining CFT: 0</p>
+
+  <label>
+    <span>Size Filter:</span>
+    <select id="sizeFilter">
+      <option value="all">All</option>
+      <option value="3 inch">3 Inch</option>
+      <option value="6 inch">6 Inch</option>
+      <option value="7 inch">7 Inch</option>
+     <option value="8 inch">8 Inch</option>
+     <option value="9 inch">9 Inch</option>
+
+    </select>
+  </label>
+
+  <p id="purchaseUnits">Purchase Units: 0</p>
+  <p id="saleUnits">Sale Units: 0</p>
+  <p id="remainingUnits">Remaining Units: 0</p>
 </section>
+
     <!-- Action Buttons -->
     <div class="actions">
       <button class="btn1" id="purchaseBtn">Purchase</button>
@@ -35,11 +51,11 @@
         <label class="field">
           <span>Size</span>
           <select id="size" required>
-            <option value="3 Feet">3 Inch</option>
-            <option value="6 Feet">6 Inch</option>
-            <option value="7 Feet">7 Inch</option>
-            <option value="8 Feet">8 Inch</option>
-            <option value="9 Feet">9 Inch</option>
+            <option value="3 inch">3 Inch</option>
+            <option value="6 inch">6 Inch</option>
+            <option value="7 inch">7 Inch</option>
+            <option value="8 inch">8 Inch</option>
+            <option value="9 inch">9 Inch</option>
           </select>
         </label>
 

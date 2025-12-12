@@ -14,12 +14,24 @@
 
   <!-- Main Content -->
   <main class="wood-container">
-    <section class="stock-card">
+     <section class="stock-card">
   <h2>Current Stock</h2>
+
+  <label>
+    <span>Size Filter:</span>
+    <select id="sizeFilter">
+      <option value="all">All</option>
+      <option value="½ Feet">½ Feet</option>
+      <option value="1 Feet">1 Feet</option>
+      <option value="1½ Feet">1½ Feet</option>
+    </select>
+  </label>
+
   <p id="purchaseUnits">Purchase Units: 0</p>
   <p id="saleUnits">Sale Units: 0</p>
   <p id="remainingUnits">Remaining Units: 0</p>
 </section>
+
     <!-- Action Buttons -->
     <div class="actions">
       <button class="btn1" id="purchaseBtn">Purchase</button>

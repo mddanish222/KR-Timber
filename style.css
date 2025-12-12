@@ -723,4 +723,34 @@ min-width: 190px;
   color: #3e2c1c;
   font-family: 'Bree Serif', serif;
 }
+#sizeFilter {
+  padding: 6px 10px;
+  font-size: 15px;
+  border: 2px solid #d2b48c; /* light brown border */
+  border-radius: 8px;
+  background: #fff7e6;       /* soft cream background */
+  color: #5a3e1b;            /* dark wood text */
+  outline: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* Hover Effect */
+#sizeFilter:hover {
+  border-color: #b8966a;
+  background: #fffbf2;
+}
+
+/* Focus Effect */
+#sizeFilter:focus {
+  border-color: #a67c52;
+  box-shadow: 0 0 5px rgba(166, 124, 82, 0.5);
+}
+
+/* Make <option> look cleaner in dropdown */
+#sizeFilter option {
+  background: #fff7e6;
+  color: #5a3e1b;
+}
+
 

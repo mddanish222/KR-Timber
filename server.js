@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
@@ -9,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================== CONNECT MONGODB ==================
-mongoose.connect("mongodb+srv://admin:Mohammed22danish@krtimberdb.l9mprx5.mongodb.net/woodapp")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.log("❌ DB Error:", err));
 
@@ -141,8 +142,8 @@ app.get("/get", async (req, res) => {
 // ================== SERVER ==================
 // =======================================================
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://127.0.0.1:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

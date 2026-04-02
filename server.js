@@ -5,7 +5,11 @@ const cors = require("cors");
 const app = express();
 
 // ================== MIDDLEWARE ==================
-app.use(cors());
+app.use(cors({
+  origin: "https://kr-timber.netlify.app",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // ================== CONNECT MONGODB ==================
